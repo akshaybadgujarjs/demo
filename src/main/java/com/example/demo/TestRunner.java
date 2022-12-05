@@ -100,8 +100,11 @@ public class TestRunner {
             logDocument(doc);*//*
             *//*
             Setting class in suites
-             *//*
-
+             */
+            URL jarFile = new File("/Users/akshay.badgujar_js/IdeaProjects/demo/jars/test-0.0.1-SNAPSHOT.jar").toURI().toURL();
+            addPath("/Users/akshay.badgujar_js/IdeaProjects/demo/jars/test-0.0.1-SNAPSHOT.jar");
+            URL[] classLoaderUrls = new URL[]{jarFile};
+            URLClassLoader urlClassLoader = new URLClassLoader(classLoaderUrls);
             List<String> classesList = new ArrayList<>();
             classesList.add("com.example.test.PulsarTestsSample");
             Class[] classes = new Class[classesList.size()];
@@ -110,9 +113,9 @@ public class TestRunner {
                 classes[i] = testClassName;
             }
 
-            log.info("Creating Test ng object and adding classes");*/
+            log.info("Creating Test ng object and adding classes");
 
-            /*TestNG testNG = new TestNG();
+            TestNG testNG = new TestNG();
             testNG.addListener(customListener);
 //            testNG.setXmlPathInJar(request.getXmlFiles(0));
 //            testNG.setTestJar(saveDir + File.separator + fileName);
@@ -122,8 +125,9 @@ public class TestRunner {
             testNG.setTestClasses(new Class[] { classes[0].newInstance().getClass()});
 //            testNG.setTestClasses(new Class[] {Class.forName("com.swiggy.test.tests.vendor.PulsarTests").newInstance().getClass()});
             log.info("setTestClasses");
-            testNG.run();*/
-
+            testNG.run();
+            int status = testNG.getStatus();
+            System.err.println("Status ===> " + status);
 
 
             /*XmlSuite suite = new XmlSuite();
@@ -145,9 +149,9 @@ public class TestRunner {
             tng.run();*/
 
 
-            TestNG testNg = new TestNG();
-            URLClassLoader customClassLoader = URLClassLoader.newInstance(new URL[]{new File("/Users/akshay.badgujar_js/IdeaProjects/demo/test-0.0.1-SNAPSHOT.jar").toURI().toURL()});
-            testNg.addClassLoader(customClassLoader);
+            /*TestNG testNg = new TestNG();
+            *//*URLClassLoader customClassLoader = URLClassLoader.newInstance(new URL[]{new File("/Users/akshay.badgujar_js/IdeaProjects/demo/test-0.0.1-SNAPSHOT.jar").toURI().toURL()});
+            testNg.addClassLoader(customClassLoader);*//*
 //            testNg.addListener(customListener);
             XmlSuite suite = new XmlSuite();
             suite.setName("Pulsar Tests Suite");
@@ -169,7 +173,7 @@ public class TestRunner {
             testNg.setVerbose(2);
             testNg.run();
             int status = testNg.getStatus();
-            System.err.println("Status ===> " + status);
+            System.err.println("Status ===> " + status);*/
 
 
             /*URLClassLoader customClassLoader = URLClassLoader.newInstance(new URL[]{new File("/Users/akshay.badgujar_js/IdeaProjects/demo/test-0.0.1-SNAPSHOT.jar").toURI().toURL()});
@@ -206,6 +210,34 @@ public class TestRunner {
             Node listener = listeners.item(i);
             NamedNodeMap attributes = listener.getAttributes();
             log.info("<listener> => "+attributes.getNamedItem("class-name").getNodeValue());
+        }
+    }
+
+    public static void addPath(String s) throws Exception {
+
+        log.info("Adding " + s + " to classpath");
+        File f = new File(s);
+        URL u = f.toURI().toURL();
+
+        URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+        Class urlClass = URLClassLoader.class;
+        Method method = urlClass.getDeclaredMethod("addURL", new Class[]{URL.class});
+        method.setAccessible(true);
+        method.invoke(urlClassLoader, new Object[]{u});
+    }
+
+    public static ClassLoader getClassLoader(String url) {
+        try {
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+            if (!method.isAccessible()) {
+                method.setAccessible(true);
+            }
+            URLClassLoader classLoader = new URLClassLoader(new URL[]{}, ClassLoader.getSystemClassLoader());
+            method.invoke(classLoader, new URL(url));
+            return classLoader;
+        } catch (Exception e) {
+            log.error("getClassLoader-error", e);
+            return null;
         }
     }
 }

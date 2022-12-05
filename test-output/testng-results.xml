@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results ignored="0" total="0" passed="0" failed="0" skipped="0">
+<testng-results skipped="0" failed="0" ignored="0" total="0" passed="0">
   <reporter-output>
   </reporter-output>
-  <suite started-at="2022-11-30T18:37:51 IST" name="Pulsar Tests Suite" finished-at="2022-11-30T18:37:51 IST" duration-ms="8">
+  <suite name="Command line suite" duration-ms="12" started-at="2022-12-01T17:15:38 IST" finished-at="2022-12-01T17:15:38 IST">
     <groups>
     </groups>
-    <test started-at="2022-11-30T18:37:51 IST" name="Pulsar Test" finished-at="2022-11-30T18:37:51 IST" duration-ms="8">
-    </test> <!-- Pulsar Test -->
-  </suite> <!-- Pulsar Tests Suite -->
+    <test name="Command line test" duration-ms="12" started-at="2022-12-01T17:15:38 IST" finished-at="2022-12-01T17:15:38 IST">
+    </test> <!-- Command line test -->
+  </suite> <!-- Command line suite -->
 </testng-results>

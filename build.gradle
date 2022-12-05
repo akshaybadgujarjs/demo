@@ -2,11 +2,14 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.4.13'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'idea'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = '8'
+
+
 
 repositories {
 	mavenCentral()
@@ -22,7 +25,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	// https://mvnrepository.com/artifact/org.testng/testng
 //     implementation group: 'org.testng', name: 'testng', version: '7.5'
-    implementation group: 'org.testng', name: 'testng', version: '7.0.0'
+    implementation group: 'org.testng', name: 'testng', version: '7.5'
 
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
@@ -31,10 +34,6 @@ dependencies {
 
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-}
-
 bootJar {
-    mainClass = 'com.example.demo.DemoApplication'
+    mainClass.set('com.example.demo.DemoApplication')
 }
