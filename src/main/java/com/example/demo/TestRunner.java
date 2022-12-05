@@ -62,14 +62,19 @@ public class TestRunner {
             }
 
             Class classToLoad = Class.forName("com.example.test.PulsarTestsSample", true, urlClassLoader);
-            Method method1 = classToLoad.getDeclaredMethod("sampleTest");
-            Method method2 = classToLoad.getDeclaredMethod("runTest");
+            Method sampleTest = classToLoad.getDeclaredMethod("sampleTest");
+            Method runTest = classToLoad.getDeclaredMethod("runTest");
+            Class[] cArg = new Class[1];
+            cArg[0] = String.class;
+            Method runTestWithPath = classToLoad.getDeclaredMethod("runTestWithPath", cArg);
             log.info("pulsar test sample instance created");
             Object instance = classToLoad.newInstance();
             log.info("calling sample test method");
-            Object result1 = method1.invoke(instance);
+            sampleTest.invoke(instance);
             log.info("calling run test method");
-            Object result2 = method2.invoke(instance);
+            runTest.invoke(instance);
+            log.info("calling runTestWithPath method");
+            runTestWithPath.invoke(instance,"/Users/akshay.badgujar_js/IdeaProjects/demo/jars/test-0.0.1-SNAPSHOT.jar");
 
 
             /*log.info("Creating Test ng object and adding classes");
