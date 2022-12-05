@@ -25,7 +25,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	// https://mvnrepository.com/artifact/org.testng/testng
 //     implementation group: 'org.testng', name: 'testng', version: '7.5'
-    implementation group: 'org.testng', name: 'testng', version: '7.5'
+    compileOnly group: 'org.testng', name: 'testng', version: '7.5'
 
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"

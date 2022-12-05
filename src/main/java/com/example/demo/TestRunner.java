@@ -6,13 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.testng.TestNG;
-import org.testng.xml.XmlClass;
-import org.testng.xml.XmlSuite;
-import org.testng.xml.XmlTest;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -22,8 +23,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.KeyManagementException;
@@ -41,68 +44,13 @@ import static org.springframework.util.FileCopyUtils.BUFFER_SIZE;
 @Configurable
 public class TestRunner {
 
-    @Autowired
-    private CustomListener customListener;
-
     public void triggerTestFromRequest() {
         try {
-           /* URL jarFile = new File("/Users/akshay.badgujar_js/IdeaProjects/demo/test-0.0.1-SNAPSHOT.jar").toURI().toURL();
-
-            URL[] classLoaderUrls = new URL[]{jarFile};
-            URLClassLoader urlClassLoader = new URLClassLoader(classLoaderUrls);
-
-            *//*InputStream in = urlClassLoader.getResourceAsStream("pulsar.xml");
-
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(in);
-
-            //Get al nodes with tag class
-            NodeList nodeList = doc.getElementsByTagName("class");
-            //Iterate over all nodes with tag class
-            List<String> classesList = new ArrayList<>();
-            log.info("Extracting classed from xml passed");
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                //Get the nodes incrementally
-                Node node = nodeList.item(i);
-                if (node.hasAttributes()) {
-                    //Get all attributed for that class tag
-                    NamedNodeMap namedNodeMap = node.getAttributes();
-                    //Get the attribute with name "name"
-                    Node className = namedNodeMap.getNamedItem("name");
-                    log.info("className => "+ className.getNodeName());
-                    //Get its value which will be our class name
-                    classesList.add(className.getTextContent());
-                }
-            }*//*
-
-            *//*log.info("Classes Extracted " + Arrays.toString(classesList.toArray()));
-
-            Element xmlDoc = doc.getDocumentElement();
-            NodeList listenersList =  xmlDoc.getElementsByTagName("listeners");
-            if(listenersList!=null){
-                if(listenersList.getLength() > 0){
-                    for (int i = 0; i < listenersList.getLength(); i++) {
-                        if(i== listenersList.getLength()-1){
-                            Element listener = doc.createElement("listener");
-                            listener.setAttribute("class-name","com.swiggy.testexecutor.common.utils.CustomListener");
-                            Node listenerNode = listenersList.item(i);
-                            listenerNode.getParentNode().appendChild(listener);
-                        }
-                    }
-                }else {
-                    //TODO: Handle listeners tag present but no element inside it
-                }
-            }else {
-                //TODO: Handle listeners tag not present part
-            }
-
-            logDocument(doc);*//*
-            *//*
-            Setting class in suites
-             */
             URL jarFile = new File("/Users/akshay.badgujar_js/IdeaProjects/demo/jars/test-0.0.1-SNAPSHOT.jar").toURI().toURL();
-            addPath("/Users/akshay.badgujar_js/IdeaProjects/demo/jars/test-0.0.1-SNAPSHOT.jar");
+//            addPath("/Users/akshay.badgujar_js/IdeaProjects/demo/jars/test-0.0.1-SNAPSHOT.jar");
+
+            loadClassesFromJar("/Users/akshay.badgujar_js/IdeaProjects/demo/jars/test-0.0.1-SNAPSHOT.jar");
+
             URL[] classLoaderUrls = new URL[]{jarFile};
             URLClassLoader urlClassLoader = new URLClassLoader(classLoaderUrls);
             List<String> classesList = new ArrayList<>();
@@ -113,68 +61,26 @@ public class TestRunner {
                 classes[i] = testClassName;
             }
 
-            log.info("Creating Test ng object and adding classes");
+            Class classToLoad = Class.forName("com.example.test.PulsarTestsSample", true, urlClassLoader);
+            Method method1 = classToLoad.getDeclaredMethod("sampleTest");
+            Method method2 = classToLoad.getDeclaredMethod("runTest");
+            log.info("pulsar test sample instance created");
+            Object instance = classToLoad.newInstance();
+            log.info("calling sample test method");
+            Object result1 = method1.invoke(instance);
+            log.info("calling run test method");
+            Object result2 = method2.invoke(instance);
 
+
+            /*log.info("Creating Test ng object and adding classes");
             TestNG testNG = new TestNG();
             testNG.addListener(customListener);
-//            testNG.setXmlPathInJar(request.getXmlFiles(0));
-//            testNG.setTestJar(saveDir + File.separator + fileName);
             log.info("addListener");
-//            testNG.setTestClasses(classes);
-//            testNG.setTestClasses(new Class[] { classes[0].newInstance().getClass()});
-            testNG.setTestClasses(new Class[] { classes[0].newInstance().getClass()});
-//            testNG.setTestClasses(new Class[] {Class.forName("com.swiggy.test.tests.vendor.PulsarTests").newInstance().getClass()});
+            testNG.setTestClasses(classes);
             log.info("setTestClasses");
             testNG.run();
             int status = testNG.getStatus();
-            System.err.println("Status ===> " + status);
-
-
-            /*XmlSuite suite = new XmlSuite();
-            suite.setName("PulsarTests");
-
-            XmlTest test = new XmlTest(suite);
-            test.setName("PulsarTests");
-            List<XmlClass> classes2 = new ArrayList<XmlClass>();
-            classes2.add(new XmlClass("com.example.test.PulsarTestsSample"));
-            test.setXmlClasses(classes2) ;
-
-            List<XmlSuite> suites = new ArrayList<XmlSuite>();
-            suites.add(suite);
-            TestNG tng = new TestNG();
-            URLClassLoader customClassLoader = URLClassLoader.newInstance(new URL[]{new File("/Users/akshay.badgujar_js/IdeaProjects/demo/test-0.0.1-SNAPSHOT.jar").toURI().toURL()});
-            tng.addClassLoader(customClassLoader);
-            tng.setXmlSuites(suites);
-            tng.addListener(customListener);
-            tng.run();*/
-
-
-            /*TestNG testNg = new TestNG();
-            *//*URLClassLoader customClassLoader = URLClassLoader.newInstance(new URL[]{new File("/Users/akshay.badgujar_js/IdeaProjects/demo/test-0.0.1-SNAPSHOT.jar").toURI().toURL()});
-            testNg.addClassLoader(customClassLoader);*//*
-//            testNg.addListener(customListener);
-            XmlSuite suite = new XmlSuite();
-            suite.setName("Pulsar Tests Suite");
-
-            XmlTest test = new XmlTest();
-            test.setXmlSuite(suite);
-            test.setName("Pulsar Test");
-            test.setParallel(XmlSuite.ParallelMode.NONE);
-            XmlClass xmlClass = new XmlClass("com.example.test.PulsarTestsSample");
-            test.setClasses(Collections.singletonList(xmlClass));
-            test.setVerbose(2);
-            suite.setTests(Collections.singletonList(test));
-            System.err.println(suite.toXml());
-            testNg.setXmlSuites(Collections.singletonList(suite));
-
-//            testNg.setTestJar("/Users/akshay.badgujar_js/IdeaProjects/demo/test-0.0.1-SNAPSHOT.jar");
-//            testNg.setXmlPathInJar("vendor/Pulsar.xml");
-
-            testNg.setVerbose(2);
-            testNg.run();
-            int status = testNg.getStatus();
             System.err.println("Status ===> " + status);*/
-
 
             /*URLClassLoader customClassLoader = URLClassLoader.newInstance(new URL[]{new File("/Users/akshay.badgujar_js/IdeaProjects/demo/test-0.0.1-SNAPSHOT.jar").toURI().toURL()});
             Optional<Class<?>> oTestClass = findClass("SomeCriteria", customClassLoader);
@@ -226,19 +132,14 @@ public class TestRunner {
         method.invoke(urlClassLoader, new Object[]{u});
     }
 
-    public static ClassLoader getClassLoader(String url) {
-        try {
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            if (!method.isAccessible()) {
-                method.setAccessible(true);
-            }
-            URLClassLoader classLoader = new URLClassLoader(new URL[]{}, ClassLoader.getSystemClassLoader());
-            method.invoke(classLoader, new URL(url));
-            return classLoader;
-        } catch (Exception e) {
-            log.error("getClassLoader-error", e);
-            return null;
-        }
+    public static void loadClassesFromJar(String jarPath) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        File file = new File(jarPath);
+        URL url = file.toURI().toURL();
+
+        URLClassLoader classLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
+        Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+        method.setAccessible(true);
+        method.invoke(classLoader, url);
     }
 }
 
