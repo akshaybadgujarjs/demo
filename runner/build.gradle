@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+}
+
+ext{
+    lombokVersion = '1.18.24'
+}
+
+group 'com.example'
+version '0.0.1-SNAPSHOT'
+sourceCompatibility = '8'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+    implementation group: 'org.testng', name: 'testng', version: '7.5'
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    // To build a Fat Jar we have to alter jar task's default behaviour.
+    // Following lines will iterate over runtime dependencies of this project
+    // and if a dependency is a directory (for example src/) it will add it
+    // directly. If a dependency is a zip or jar file it will unpack those
+    // files and adds its content to the final jar file.
+    enabled=true
+//    zip64 true
+//        from configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+}
+
+tasks.withType(Jar) {
+   duplicatesStrategy = DuplicatesStrategy.WARN
+}

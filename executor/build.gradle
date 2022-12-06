@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.4.13'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'idea'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '8'
+
+repositories {
+    mavenCentral()
+}
+
+ext{
+    lombokVersion = '1.18.24'
+}
+
+dependencies {
+    implementation(project(':runner'))
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // https://mvnrepository.com/artifact/org.testng/testng
+//     implementation group: 'org.testng', name: 'testng', version: '7.5'
+
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootJar {
+    mainClass.set('demo.DemoApplication')
+}
+
+task wrapper(type: Wrapper){
+   gradleVersion = '7.5'
+}
